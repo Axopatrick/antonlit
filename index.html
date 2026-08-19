@@ -377,6 +377,11 @@ const ALPHA=[
  ['U','🏭','usine'],['V','🚐','van'],['W','🚂','wagon'],['X','🎼','xylophone'],
  ['Y','🧘','yoga'],['Z','🦓','zèbre']
 ];
+
+  /* Noms des lettres que la voix lit mal isolées */
+const LETTER_NAME={ 'Y':'i grec', 'W':'double vé' };
+function letterName(L){ return LETTER_NAME[L] || L; }
+  
 (function(){
   const g=document.getElementById('alphaGrid');
   ALPHA.forEach(([L,em,wd])=>{
@@ -439,9 +444,7 @@ function newWord(){
     d.onclick=()=>slotClick(d,i);
     slots.appendChild(d);
   });
-/* Noms des lettres que la voix lit mal isolées */
-const LETTER_NAME={ 'Y':'i grec', 'W':'double vé' };
-function letterName(L){ return LETTER_NAME[L] || L; }
+
   const distract=EXTRA.filter(x=>!curWord.s.includes(x)).sort(()=>Math.random()-.5).slice(0,3);
   const all=[...curWord.s,...distract].sort(()=>Math.random()-.5);
   const pool=document.getElementById('w-pool'); pool.innerHTML='';
