@@ -384,7 +384,7 @@ const ALPHA=[
     b.className='letter';
     b.innerHTML=`<span class="ch">${L}</span><span class="em">${em}</span><span class="wd">${wd}</span>`;
     b.onclick=()=>{
-      say(`${L}, comme ${wd}`,.75);
+      say(`${letterName(L)}, comme ${wd}`,.75);
       b.classList.add('play');
       setTimeout(()=>b.classList.remove('play'),600);
     };
@@ -439,7 +439,9 @@ function newWord(){
     d.onclick=()=>slotClick(d,i);
     slots.appendChild(d);
   });
-
+/* Noms des lettres que la voix lit mal isolées */
+const LETTER_NAME={ 'Y':'i grec', 'W':'double vé' };
+function letterName(L){ return LETTER_NAME[L] || L; }
   const distract=EXTRA.filter(x=>!curWord.s.includes(x)).sort(()=>Math.random()-.5).slice(0,3);
   const all=[...curWord.s,...distract].sort(()=>Math.random()-.5);
   const pool=document.getElementById('w-pool'); pool.innerHTML='';
