@@ -384,7 +384,7 @@ const ALPHA=[
     b.className='letter';
     b.innerHTML=`<span class="ch">${L}</span><span class="em">${em}</span><span class="wd">${wd}</span>`;
     b.onclick=()=>{
-      say(L,.7);
+      say(`${L}, comme ${wd}`,.75);
       b.classList.add('play');
       setTimeout(()=>b.classList.remove('play'),600);
     };
