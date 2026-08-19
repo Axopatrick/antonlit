@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Les Aventures de Léo Lecteur</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Comic Sans MS', 'Trebuchet MS', sans-serif;
+    background: linear-gradient(160deg, #FFE9A8 0%, #FFC4D6 50%, #B8E6FF 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    overflow-x: hidden;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---------- Barre d'étoiles ---------- */
+  #barreEtoiles {
+    background: white;
+    border-radius: 50px;
+    padding: 12px 30px;
+    box-shadow: 0 6px 0 #E0C9A6, 0 10px 20px rgba(0,0,0,0.15);
+    font-size: 28px;
+    font-weight: bold;
+    color: #E67E22;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #compteurEtoiles.pop { animation: popEtoile 0.5s ease; }
+  @keyframes popEtoile {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.7); color: #F1C40F; }
+    100% { transform: scale(1); }
+  }
+
+  /* ---------- Écran d'accueil ---------- */
+  #accueil { text-align: center; }
+
+  h1 {
+    font-size: 46px;
+    color: #E74C3C;
+    text-shadow: 3px 3px 0 white, 6px 6px 0 rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+  }
+
+  .sousTitre { font-size: 22px; color: #7F5539; margin-bottom: 35px; }
+
+  .boutonJeu {
+    display: block;
+    width: 340px;
+    margin: 18px auto;
+    padding: 25px;
+    font-family: inherit;
+    font-size: 26px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .boutonJeu:active { transform: scale(0.95) translateY(4px); }
+
+  .btnLettres { background: #E74C3C; box-shadow: 0 8px 0 #C0392B; }
+  .btnSyllabes { background: #3498DB; box-shadow: 0 8px 0 #2874A6; }
+
+  /* ---------- Zone de jeu ---------- */
+  #zoneJeu { display: none; width: 100%; max-width: 800px; text-align: center; }
+
+  .consigne { font-size: 24px; color: #7F5539; margin-bottom: 20px; }
+
+  /* La grosse carte centrale */
+  .carteCentrale {
+    background: white;
+    border-radius: 35px;
+    padding: 35px 60px;
+    display: inline-block;
+    box-shadow: 0 10px 0 #E0C9A6, 0 16px 30px rgba(0,0,0,0.12);
+    margin-bottom: 30px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .carteCentrale:active { transform: scale(0.96); }
+
+  .grosseLettre {
+    font-size: 130px;
+    font-weight: bold;
+    color: #E74C3C;
+    line-height: 1;
+  }
+
+  .indiceEcoute { font-size: 18px; color: #95A5A6; margin-top: 8px; }
+
+  /* Zone fusion : lettre + lettre */
+  .fusionZone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+  }
+  .lettreFusion {
+    font-size: 100px;
+    font-weight: bold;
+    color: #3498DB;
+    animation: flotte 2s ease-in-out infinite;
+  }
+  .lettreFusion:nth-child(3) { animation-delay: 0.4s; color: #9B59B6; }
+  @keyframes flotte {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .plus { font-size: 55px; color: #F39C12; }
+
+  /* ---------- Grille de réponses ---------- */
+  #zoneReponses {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .choix {
+    background: white;
+    border: 5px solid transparent;
+    border-radius: 28px;
+    padding: 22px;
+    min-width: 165px;
+    cursor: pointer;
+    box-shadow: 0 7px 0 #E0C9A6, 0 12px 22px rgba(0,0,0,0.1);
+    transition: transform 0.15s, border-color 0.2s;
+    font-family: inherit;
+  }
+  .choix:active { transform: scale(0.95); }
+
+  .emojiChoix { font-size: 70px; display: block; }
+  .motChoix { font-size: 24px; color: #7F5539; font-weight: bold; margin-top: 6px; }
+  .syllabeChoix { font-size: 52px; font-weight: bold; color: #16A085; }
+
+  .choix.correct {
+    border-color: #2ECC71;
+    background: #E8F8F0;
+    animation: secousseJoie 0.6s;
+  }
+  @keyframes secousseJoie {
+    0%,100% { transform: rotate(0); }
+    25% { transform: rotate(-6deg) scale(1.08); }
+    75% { transform: rotate(6deg) scale(1.08); }
+  }
+
+  .choix.faux { border-color: #E74C3C; opacity: 0.45; }
+
+  /* ---------- Bandeau de réussite ---------- */
+  #bandeauBravo {
+    display: none;
+    font-size: 40px;
+    color: #27AE60;
+    font-weight: bold;
+    margin-top: 25px;
+    text-shadow: 2px 2px 0 white;
+    animation: surgit 0.5s;
+  }
+  @keyframes surgit {
+    from { transform: scale(0) rotate(-15deg); opacity: 0; }
+    to { transform: scale(1) rotate(0); opacity: 1; }
+  }
+
+  /* ---------- Bouton retour ---------- */
+  #btnRetour {
+    margin-top: 35px;
+    padding: 14px 32px;
+    font-family: inherit;
+    font-size: 19px;
+    background: white;
+    color: #7F5539;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #E0C9A6;
+  }
+
+  /* ---------- Confettis ---------- */
+  .confetti {
+    position: fixed;
+    width: 12px;
+    height: 12px;
+    top: -20px;
+    z-index: 999;
+    pointer-events: none;
+  }
+  @keyframes tombe {
+    to { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 34px; }
+    .grosseLettre { font-size: 95px; }
+    .boutonJeu { width: 90%; font-size: 22px; }
+    .choix { min-width: 130px; padding: 16px; }
+    .emojiChoix { font-size: 54px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="barreEtoiles">
+  ⭐ <span id="compteurEtoiles">0</span>
+</div>
+
+<!-- ===================== ACCUEIL ===================== -->
+<div id="accueil">
+  <h1>Léo Lecteur 🦁</h1>
+  <p class="sousTitre">Choisis ton jeu !</p>
+  <button class="boutonJeu btnLettres" onclick="lancerJeu('lettres')">
+    🔤 Le son des lettres
+  </button>
+  <button class="boutonJeu btnSyllabes" onclick="lancerJeu('syllabes')">
+    ✨ Fusion magique
+  </button>
+</div>
+
+<!-- ===================== JEU ===================== -->
+<div id="zoneJeu">
+  <p class="consigne" id="consigne"></p>
+  <div class="carteCentrale" id="carteCentrale" onclick="rejouerSon()"></div>
+  <div id="zoneReponses"></div>
+  <div id="bandeauBravo">BRAVO ! 🎉</div>
+  <button id="btnRetour" onclick="retourAccueil()">🏠 Retour</button>
+</div>
+
+<script>
+/* =======================================================
+   1. LES DONNÉES DU JEU
+   ======================================================= */
+
+// Pour chaque lettre : son phonétique + mots-images qui commencent par ce son
+const LETTRES = [
+  { lettre: 'A', son: 'aaa',  mots: [{e:'🍍', m:'ananas'}, {e:'🌳', m:'arbre'}, {e:'✈️', m:'avion'}] },
+  { lettre: 'B', son: 'beuh', mots: [{e:'🍌', m:'banane'}, {e:'🚢', m:'bateau'}, {e:'👢', m:'botte'}] },
+  { lettre: 'C', son: 'keuh', mots: [{e:'🥕', m:'carotte'}, {e:'🏰', m:'château'}, {e:'🔑', m:'clé'}] },
+  { lettre: 'D', son: 'deuh', mots: [{e:'🐬', m:'dauphin'}, {e:'🎲', m:'dé'}, {e:'🦖', m:'dinosaure'}] },
+  { lettre: 'E', son: 'euh',  mots: [{e:'🐘', m:'éléphant'}, {e:'⭐', m:'étoile'}, {e:'🪜', m:'échelle'}] },
+  { lettre: 'F', son: 'fff',  mots: [{e:'🍓', m:'fraise'}, {e:'🌸', m:'fleur'}, {e:'🔥', m:'feu'}] },
+  { lettre: 'G', son: 'gueuh',mots: [{e:'🎂', m:'gâteau'}, {e:'🦍', m:'gorille'}, {e:'🧤', m:'gant'}] },
+  { lettre: 'L', son: 'lll',  mots: [{e:'🌙', m:'lune'}, {e:'🦁', m:'lion'}, {e:'📖', m:'livre'}] },
+  { lettre: 'M', son: 'mmm',  mots: [{e:'🏠', m:'maison'}, {e:'🐭', m:'souris'}, {e:'🏔️', m:'montagne'}] },
+  { lettre: 'N', son: 'nnn',  mots: [{e:'👃', m:'nez'}, {e:'❄️', m:'neige'}, {e:'☁️', m:'nuage'}] },
+  { lettre: 'O', son: 'ooo',  mots: [{e:'🐻', m:'ours'}, {e:'🥚', m:'oeuf'}, {e:'🍊', m:'orange'}] },
+  { lettre: 'P', son: 'peuh', mots: [{e:'🍐', m:'poire'}, {e:'🐟', m:'poisson'}, {e:'🚪', m:'porte'}] },
+  { lettre: 'R', son: 'rrr',  mots: [{e:'🌈', m:'arc-en-ciel'}, {e:'🤖', m:'robot'}, {e:'🌹', m:'rose'}] },
+  { lettre: 'S', son: 'sss',  mots: [{e:'🐍', m:'serpent'}, {e:'☀️', m:'soleil'}, {e:'🐒', m:'singe'}] },
+  { lettre: 'T', son: 'teuh', mots: [{e:'🐢', m:'tortue'}, {e:'🍅', m:'tomate'}, {e:'🐅', m:'tigre'}] },
+  { lettre: 'V', son: 'vvv',  mots: [{e:'🐄', m:'vache'}, {e:'🚗', m:'voiture'}, {e:'🌋', m:'volcan'}] }
+];
+
+// Les syllabes : consonne + voyelle
+const CONSONNES = ['B','C','D','F','L','M','N','P','R','S','T','V'];
+const VOYELLES  = ['A','E','I','O','U'];
+
+/* =======================================================
+   2. VARIABLES D'ÉTAT
+   ======================================================= */
+let etoiles = 0;
+let jeuActuel = null;
+let bonneReponse = null;
+let dernierSonJoue = '';
+let questionEnCours = false;
+
+/* =======================================================
+   3. LA VOIX (synthèse vocale du navigateur)
+   ======================================================= */
+function parler(texte, vitesse = 0.75) {
+  if (!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const msg = new SpeechSynthesisUtterance(texte);
+  msg.lang = 'fr-FR';
+  msg.rate = vitesse;
+  msg.pitch = 1.15;   // voix un peu plus aiguë = plus sympa pour un enfant
+  speechSynthesis.speak(msg);
+}
+
+function rejouerSon() {
+  if (dernierSonJoue) parler(dernierSonJoue);
+}
+
+/* =======================================================
+   4. OUTILS
+   ======================================================= */
+function melanger(tableau) {
+  const copie = [...tableau];
+  for (let i = copie.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copie[i], copie[j]] = [copie[j], copie[i]];
+  }
+  return copie;
+}
+
+function auHasard(tableau) {
+  return tableau[Math.floor(Math.random() * tableau.length)];
+}
+
+/* =======================================================
+   5. NAVIGATION
+   ======================================================= */
+function lancerJeu(type) {
+  jeuActuel = type;
+  document.getElementById('accueil').style.display = 'none';
+  document.getElementById('zoneJeu').style.display = 'block';
+  nouvelleQuestion();
+}
+
+function retourAccueil() {
+  speechSynthesis.cancel();
+  document.getElementById('accueil').style.display = 'block';
+  document.getElementById('zoneJeu').style.display = 'none';
+}
+
+/* =======================================================
+   6. GÉNÉRATION DES QUESTIONS
+   ======================================================= */
+function nouvelleQuestion() {
+  questionEnCours = true;
+  document.getElementById('bandeauBravo').style.display = 'none';
+
+  if (jeuActuel === 'lettres') questionLettres();
+  else questionSyllabes();
+}
+
+// ---- JEU 1 : trouver l'image qui commence par la lettre ----
+function questionLettres() {
+  const cible = auHasard(LETTRES);
+  const bonMot = auHasard(cible.mots);
+  bonneReponse = bonMot.m;
+
+  // On pioche 2 intrus dans d'autres lettres
+  const autresLettres = melanger(LETTRES.filter(l => l.lettre !== cible.lettre)).slice(0, 2);
+  const intrus = autresLettres.map(l => auHasard(l.mots));
+
+  const propositions = melanger([bonMot, ...intrus]);
+
+  document.getElementById('consigne').textContent =
+    "Quel mot commence par ce son ?";
+
+  document.getElementById('carteCentrale').innerHTML =
+    `<div class="grosseLettre">${cible.lettre}</div>
+     <div class="indiceEcoute">🔊 clique pour réécouter</div>`;
+
+  const zone = document.getElementById('zoneReponses');
+  zone.innerHTML = '';
+  propositions.forEach(p => {
+    const btn = document.createElement('div');
+    btn.className = 'choix';
+    btn.innerHTML = `<span class="emojiChoix">${p.e}</span>
+                     <span class="motChoix">${p.m}</span>`;
+    btn.onclick = () => verifier(btn, p.m === bonneReponse, p.m);
+    zone.appendChild(btn);
+  });
+
+  dernierSonJoue = cible.son;
+  setTimeout(() => parler(cible.son, 0.6), 350);
+}
+
+// ---- JEU 2 : fusionner deux lettres en syllabe ----
+function questionSyllabes() {
+  const c = auHasard(CONSONNES);
+  const v = auHasard(VOYELLES);
+  const syllabe = c + v;
+  bonneReponse = syllabe;
+
+  // Intrus : même consonne, voyelle différente (le plus formateur !)
+  const autresVoyelles = melanger(VOYELLES.filter(x => x !== v)).slice(0, 2);
+  const propositions = melanger([syllabe, c + autresVoyelles[0], c + autresVoyelles[1]]);
+
+  document.getElementById('consigne').textContent =
+    "Ces deux lettres s'assemblent... ça fait quoi ?";
+
+  document.getElementById('carteCentrale').innerHTML =
+    `<div class="fusionZone">
+       <span class="lettreFusion">${c}</span>
+       <span class="plus">+</span>
+       <span class="lettreFusion">${v}</span>
+     </div>
+     <div class="indiceEcoute">🔊 clique pour réécouter</div>`;
+
+  const zone = document.getElementById('zoneReponses');
+  zone.innerHTML = '';
+  propositions.forEach(p => {
+    const btn = document.createElement('div');
+    btn.className = 'choix';
+    btn.innerHTML = `<span class="syllabeChoix">${p.toLowerCase()}</span>`;
+    btn.onclick = () => verifier(btn, p === bonneReponse, p);
+    zone.appendChild(btn);
+  });
+
+  dernierSonJoue = syllabe.toLowerCase();
+  setTimeout(() => parler(syllabe.toLowerCase(), 0.55), 350);
+}
+
+/* =======================================================
+   7. VÉRIFICATION DE LA RÉPONSE
+   ======================================================= */
+function verifier(bouton, estCorrect, valeur) {
+  if (!questionEnCours) return;   // évite les double-clics
+
+  if (estCorrect) {
+    questionEnCours = false;
+    bouton.classList.add('correct');
+    ajouterEtoile();
+    lancerConfettis();
+
+    document.getElementById('bandeauBravo').style.display = 'block';
+    const felicitations = ['Bravo !', 'Super !', 'Génial !', 'Bien joué !', 'Champion !'];
+    parler(auHasard(felicitations), 0.9);
+
+    setTimeout(nouvelleQuestion, 2400);
+
+  } else {
+    // Pas de punition : on grise juste le mauvais choix
+    bouton.classList.add('faux');
+    bouton.onclick = null;
+    parler('Essaie encore', 0.85);
+  }
+}
+
+/* =======================================================
+   8. ÉTOILES
+   ======================================================= */
+function ajouterEtoile() {
+  etoiles++;
+  const el = document.getElementById('compteurEtoiles');
+  el.textContent = etoiles;
+  el.classList.remove('pop');
+  void el.offsetWidth;      // petite astuce pour relancer l'animation
+  el.classList.add('pop');
+  localStorage.setItem('etoilesLeo', etoiles);
+}
+
+// Au chargement, on récupère les étoiles de la dernière fois
+window.addEventListener('load', () => {
+  const sauvegarde = localStorage.getItem('etoilesLeo');
+  if (sauvegarde) {
+    etoiles = parseInt(sauvegarde);
+    document.getElementById('compteurEtoiles').textContent = etoiles;
+  }
+  // On "réveille" la synthèse vocale (certains navigateurs en ont besoin)
+  if ('speechSynthesis' in window) speechSynthesis.getVoices();
+});
+
+/* =======================================================
+   9. CONFETTIS 🎉
+   ======================================================= */
+function lancerConfettis() {
+  const couleurs = ['#E74C3C','#F1C40F','#2ECC71','#3498DB','#9B59B6','#E67E22','#1ABC9C'];
+
+  for (let i = 0; i < 70; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random() * 100 + 'vw';
+    c.style.background = auHasard(couleurs);
+    c.style.animation = `tombe ${1.8 + Math.random() * 1.4}s linear forwards`;
+    c.style.animationDelay = Math.random() * 0.4 + 's';
+
+    // Formes variées : carré, rond, rectangle
+    const forme = Math.random();
+    if (forme < 0.33) c.style.borderRadius = '50%';
+    else if (forme < 0.66) { c.style.width = '8px'; c.style.height = '16px'; }
+
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3600);
+  }
+}
+</script>
+</body>
+</html>
