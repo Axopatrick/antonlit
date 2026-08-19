@@ -549,9 +549,9 @@ function dropNum(tile,slot){
 let addA=0,addB=0,addS=0,holePos=1;
 
 function sayAdd(){
-  const phrase = holePos===0 ? `Combien plus ${addB} égale ${addS} ?`
-               : holePos===1 ? `${addA} plus combien égale ${addS} ?`
-               :               `${addA} plus ${addB} égale combien ?`;
+  const phrase = holePos===0 ? `Combien plus ${NAMES[addB]} égale ${NAMES[addS]} ?`
+               : holePos===1 ? `${NAMES[addA]} plus combien égale ${NAMES[addS]} ?`
+               :               `${NAMES[addA]} plus ${NAMES[addB]} égale combien ?`;
   say(phrase,.8);
 }
 
