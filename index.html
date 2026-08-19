@@ -137,7 +137,7 @@ h1 .l{color:var(--lecture-1)} h1 .c{color:var(--compte-1)}
 }
 .speaker:active{transform:scale(.94)}
 
-.eq{display:flex;justify-content:center;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:32px}
+.eq{display:flex;justify-content:center;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:22px}
 .num-box{
   width:76px;height:76px;border-radius:18px;background:#fff;
   border:3px solid var(--compte-1);display:flex;align-items:center;justify-content:center;
@@ -243,6 +243,7 @@ h1 .l{color:var(--lecture-1)} h1 .c{color:var(--compte-1)}
     <div class="panel">
       <div class="hint">Trouve le chiffre qui manque</div>
       <div class="eq" id="a-eq"></div>
+      <button class="speaker" onclick="sayAdd()">🔊 Réécouter</button>
       <div class="pool" id="a-pool"></div>
       <div class="feed" id="a-feed"></div>
       <button class="next" id="a-next" onclick="newAdd()">Encore →</button>
@@ -472,6 +473,7 @@ function checkWord(){
   }else{
     slots.forEach(s=>s.classList.add('no'));
     f.textContent='Presque ! Essaie encore 💪'; f.className='feed bad';
+    say('Presque ! Essaie encore',.85);
     setTimeout(()=>{
       slots.forEach((s,i)=>{
         s.classList.remove('no','filled'); s.textContent='';
@@ -521,7 +523,8 @@ function dropNum(tile,slot){
   }else{
     slot.classList.add('no');
     f.textContent='Non, réécoute bien 👂'; f.className='feed bad';
-    setTimeout(()=>{slot.classList.remove('no');f.textContent='';sayNumber()},900);
+    say('Non, réécoute bien',.85);
+    setTimeout(()=>{slot.classList.remove('no');f.textContent='';sayNumber()},1600);
   }
   document.querySelectorAll('.tile.sel').forEach(t=>t.classList.remove('sel'));
   selTile=null;
@@ -529,6 +532,13 @@ function dropNum(tile,slot){
 
 /* ============ EX4 : ADDITION ============ */
 let addA=0,addB=0,addS=0,holePos=1;
+
+function sayAdd(){
+  const phrase = holePos===0 ? `Combien plus ${addB} égale ${addS} ?`
+               : holePos===1 ? `${addA} plus combien égale ${addS} ?`
+               :               `${addA} plus ${addB} égale combien ?`;
+  say(phrase,.8);
+}
 
 function newAdd(){
   addA=1+Math.floor(Math.random()*8);
@@ -566,7 +576,7 @@ function newAdd(){
   const hole=eq.querySelector('.hole');
   hole.onclick=()=>{if(selTile)dropAdd(selTile,hole)};
   activeDrops=[hole]; activeCb=dropAdd;
-  say(`${addA} plus ${addB} égale ${addS}. Quel chiffre manque ?`,.8);
+  sayAdd();
 }
 function opSpan(s){const d=document.createElement('div');d.className='op';d.textContent=s;return d}
 
@@ -576,12 +586,13 @@ function dropAdd(tile,box){
   if(+tile.dataset.val===answer){
     box.textContent=answer; box.classList.add('ok');
     f.textContent='Bravo Anton ! ⭐'; f.className='feed good';
-    addStar(); confetti(); say(`${addA} plus ${addB} égale ${addS}`,.8);
+    addStar(); confetti(); say(`Bravo Anton ! ${addA} plus ${addB} égale ${addS}`,.8);
     document.getElementById('a-next').classList.add('on');
     document.querySelectorAll('#a-pool .tile').forEach(t=>t.classList.add('used'));
   }else{
     box.classList.add('no');
     f.textContent='Recompte bien 🤔'; f.className='feed bad';
+    say('Recompte bien',.85);
     setTimeout(()=>{box.classList.remove('no');f.textContent=''},900);
   }
   document.querySelectorAll('.tile.sel').forEach(t=>t.classList.remove('sel'));
