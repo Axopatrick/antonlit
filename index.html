@@ -411,6 +411,15 @@ const WORDS=[
  {w:'DOMINO',e:'🁢',s:['DO','MI','NO']}
 ];
 const EXTRA=['LU','RI','FA','SO','MU','TA','PO','NI','VA','CHE','BO','LI'];
+  /* Prononciation forcée pour les syllabes que la voix épelle */
+const SYL_SOUND={
+  'TEAU':'to',   'PEAU':'po',   'LLON':'yon',  'RRO':'ro',
+  'SOIR':'soir', 'TOR':'tor',   'TUE':'tu',    'CHA':'cha',
+  'CHO':'cho',   'CHE':'che',   'GÂ':'ga',     'VÉ':'vé',
+  'É':'é',       'A':'a',       'LAT':'la',    'PIN':'pin',
+  'NE':'ne',     'LE':'le',     'TE':'te',     'RA':'ra'
+};
+function sylSound(s){ return SYL_SOUND[s] || s.toLowerCase(); }
 let curWord=null,placed=[];
 
 function newWord(){
@@ -435,7 +444,7 @@ function newWord(){
   const pool=document.getElementById('w-pool'); pool.innerHTML='';
   all.forEach(syl=>{
     const t=document.createElement('button');
-    t.className='tile lec'; t.textContent=syl; t.dataset.sound=syl;
+    t.className='tile lec'; t.textContent=syl; t.dataset.sound=sylSound(syl);
     makeDraggable(t);
     pool.appendChild(t);
   });
