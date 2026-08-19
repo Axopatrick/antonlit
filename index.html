@@ -468,7 +468,7 @@ function checkWord(){
   if(ok){
     slots.forEach(s=>s.classList.add('ok'));
     f.textContent='Bravo Anton ! ⭐'; f.className='feed good';
-    addStar(); confetti(); say('Bravo ! '+curWord.w.toLowerCase(),.8);
+    addStar(); confetti(); say('Bravo Anton ! '+curWord.w.toLowerCase(),.8);
     document.getElementById('w-next').classList.add('on');
   }else{
     slots.forEach(s=>s.classList.add('no'));
@@ -517,7 +517,7 @@ function dropNum(tile,slot){
   if(+tile.dataset.val===target){
     slot.textContent=target; slot.classList.add('ok');
     f.textContent='Bravo Anton ! ⭐'; f.className='feed good';
-    addStar(); confetti(); say('Bravo ! '+NAMES[target],.8);
+    addStar(); confetti(); say('Bravo Anton ! '+NAMES[target],.8);
     document.getElementById('n-next').classList.add('on');
     document.querySelectorAll('#n-pool .tile').forEach(t=>t.classList.add('used'));
   }else{
