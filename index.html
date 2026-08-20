@@ -325,8 +325,15 @@ function makeDraggable(tile,dropSelector,onDrop){
     tile.style.opacity='.3';
     e.preventDefault();
   };
-  tile.addEventListener('mousedown',start);
-  tile.addEventListener('touchstart',start,{passive:false});
+tile.addEventListener('mousedown', start);
+tile.addEventListener('touchstart', (e) => {
+  if (tile.classList.contains('used')) return;
+  if (tile.dataset.sound) say(tile.dataset.sound);
+  document.querySelectorAll('.tile.sel').forEach(t => t.classList.remove('sel'));
+  if (selTile === tile) { selTile = null; }
+  else { selTile = tile; tile.classList.add('sel'); }
+  start(e);
+}, { passive: false });
 
   // clic simple = sélection
   tile.addEventListener('click',()=>{
